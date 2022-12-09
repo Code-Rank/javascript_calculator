@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <style>
+        .card {
+            width: 25%;
+            height: 400px;
+            background-color: bisque;
+            border: 1px solid black;
+            margin-top: 300px;
+            border-radius: 6px;
+        }
+        #cal_button input {
+            color: blue;
+            padding: 28px;
+            margin: 1px;
+            border-radius: 80px;
+            border: none;
+            background-color: aliceblue;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        input {
+            margin-top: 20px;
+        }
+        #result {
+            background-color: red;
+            height: 25%;
+        }
+        #result input {
+            width: 97%;
+            height: 90%;
+            margin-top: 0.5px;
+            background: transparent;
+            outline: none;
+            color: aliceblue;
+            font-size: 50px;
+        }
+    </style>
+    <body>
+        
+        <center>
+            <div class="card">
+                <div class="row" id="result">
+                    <input type="text" id="result_input" readonly />
+                </div>
+                <div class="row" id="cal_button">
+                    <input type="button" value="7" id="seven" onclick="calculator(7)" />
+                    <input type="button" value="8" id="eight" onclick="calculator(8)" />
+                    <input type="button" value="9" id="nine" onclick="calculator(9)" />
+                    <input type="button" value="+" id="plus" onclick="calculator('+')" />
+                </div>
+                <div class="row" id="cal_button">
+                    <input type="button" value="4" id="four" onclick="calculator(4)" />
+                    <input type="button" value="5" id="five" onclick="calculator(5)" />
+                    <input type="button" value="6" id="six" onclick="calculator(6)" />
+                    <input type="button" value="-" id="minus" onclick="calculator('-')" />
+                </div>
+                <div class="row" id="cal_button">
+                    <input type="button" value="1" id="one" onclick="calculator(1)" />
+                    <input type="button" value="2" id="two" onclick="calculator(2)" />
+                    <input type="button" value="3" id="three" onclick="calculator(3)" />
+                    <input type="button" value="*" id="multiply" onclick="calculator('*')" />
+                </div>
+                <div class="row" id="cal_button">
+                    <input type="button" value="0" id="zero" onclick="calculator(0)" />
+                    <input type="button" value="." id="dot" onclick="calculator('.')" />
+                    <input type="button" value="/" id="divide" onclick="calculator('/')" />
+                    <input type="button" value="=" id="equal" onclick="calculator('=')" />
+                </div>
+            </div>
+        </center>
+
+        <script>
+            let expression = new Array();
+            let show = "";
+            
+            let opleft = "",opright = "";
+            let left_border, right_border;
+
+            function calculator(val) {
+                expression.push(val);
+
+                console.log(expression);
+                if (val != "=") {
+                    for (let i = 0; i < expression.length; i++) {
+                        show += expression[i];
+                    }
+                    console.log(show);
+
+                    document.getElementById("result_input").value = show;
+                    show = "";
+                }
+
+                if (val == "=") {
+                    let j = 0;
+                    while (1) {
+                        let index;
+                        let operator;
+                        let result;
+                        let left_op_count = 0;
+                        if (expression.indexOf("/") != -1) {
+                            index = expression.indexOf("/");
+                            operator = "/";
+                        } else if (expression.indexOf("*") != -1) {
+                            index = expression.indexOf("*");
+                            operator = "*";
+                        } else if (expression.indexOf("-") != -1) {
+                            index = expression.indexOf("-");
+                            operator = "-";
+                        } else if (expression.indexOf("+") != -1) {
+                            index = expression.indexOf("+");
+                            operator = "+";
+                        } else {
+                            break;
+                        }
+
+                        if (index != -1) {
+                            for (let i = index + 1; i < expression.length; i++) {
+                                if (expression[i] == "*" || expression[i] == "-" || expression[i] == "+" || expression[i] == "/" || expression[i] == "=" || i > expression.length) {
+                                    right_border = i;
+                                    break;
+                                } else {
+                                    opright += expression[i];
+                                }
+                            }
+                            console.log("index of right border" + right_border);
+                            console.log(opright);
+                            for (let i = index - 1; i < expression.length; i--) {
+                                if (expression[i] == "*" || expression[i] == "-" || expression[i] == "+" || expression[i] == "=" || expression[i] == "/" || i < 0) {
+                                    left_border = i;
+                                    break;
+                                } else {
+                                    opleft += expression[i];
+                                    left_op_count++;
+                                }
+                                //console.log(opleft);
+                            }
+                            console.log("index of left border" + left_border);
+                            if (left_op_count > 1) {
+                                opleft = reverse(opleft);
+                            }
+
+                            if (operator == "*") {
+                                result = Number(opleft) * Number(opright);
+                            } else if (operator == "/") {
+                                result = Number(opleft) / Number(opright);
+                            } else if (operator == "+") {
+                                result = Number(opleft) + Number(opright);
+                            } else if (operator == "-") {
+                                result = Number(opleft) - Number(opright);
+                            }
+
+                            console.log("result" + result);
+                            if (left_border == -1) {
+                                expression.splice(left_border + 1, right_border, result);
+                            } else {
+                                expression.splice(left_border + 1, right_border - 2, result);
+                            }
+
+                            console.log(opleft);
+                            console.log(expression);
+                            opright = "";
+                            opleft = "";
+                            left_op_count = 0;
+                            document.getElementById("result_input").value = "";
+
+                            if (expression.length == 2) {
+                                document.getElementById("result_input").value = expression[0];
+                                expression.pop();
+                            }
+                        }
+                        j++;
+                    }
+                }
+            }
+
+            function reverse(s) {
+                return s.split("").reverse().join("");
+            }
+        </script>
+    </body>
+</html>
